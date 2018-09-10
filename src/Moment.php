@@ -835,7 +835,7 @@ class Moment extends \DateTime
      * @return string
      * @throws MomentException
      */
-    public function calendar($withTime = true, Moment $refMoment = null)
+    public function calendar($withTime = true, Moment $refMoment = null, array $customFormats = [])
     {
         $refMoment = $refMoment ? $refMoment : new Moment('now', $this->getTimezoneString());
         $momentFromVo = $this->cloning()->startOf('day')->from($refMoment->startOf('day'));
@@ -844,40 +844,62 @@ class Moment extends \DateTime
         // handle time string
         $renderedTimeString = MomentLocale::renderLocaleString(array('calendar', 'withTime'), array($this));
         $addTime = false;
+        $customFormat = false;
 
         // apply cases
         if ($diff > 7)
         {
             $localeKeys = array('calendar', 'default');
+            if (isset($customFormats["default"])) {
+                $customFormat = $customFormats["default"];
+            }
         }
         elseif ($diff > 1)
         {
             $localeKeys = array('calendar', 'lastWeek');
+            if (isset($customFormats["lastWeek"])) {
+                $customFormat = $customFormats["lastWeek"];
+            }
             $addTime = true;
         }
         elseif ($diff > 0)
         {
             $localeKeys = array('calendar', 'lastDay');
+            if (isset($customFormats["lastDay"])) {
+                $customFormat = $customFormats["lastDay"];
+            }
             $addTime = true;
         }
         elseif ($diff == 0)
         {
             $localeKeys = array('calendar', 'sameDay');
+            if (isset($customFormats["sameDay"])) {
+                $customFormat = $customFormats["sameDay"];
+            }
             $addTime = true;
         }
         elseif ($diff == -1)
         {
             $localeKeys = array('calendar', 'nextDay');
+            if (isset($customFormats["nextDay"])) {
+                $customFormat = $customFormats["nextDay"];
+            }
             $addTime = true;
         }
         elseif ($diff > -7)
         {
             $localeKeys = array('calendar', 'sameElse');
+            if (isset($customFormats["sameElse"])) {
+                $customFormat = $customFormats["sameElse"];
+            }
             $addTime = true;
         }
         else
         {
             $localeKeys = array('calendar', 'default');
+            if (isset($customFormats["default"])) {
+                $customFormat = $customFormats["default"];
+            }
         }
 
         // render format
@@ -889,7 +911,7 @@ class Moment extends \DateTime
             $format .= ' ' . $renderedTimeString;
         }
 
-        return $this->format($format);
+        return $this->format($customFormat ? $customFormat : $format);
     }
 
     /**
